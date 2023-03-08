@@ -5,6 +5,10 @@ GET {{host}}/ping HTTP/1.1
 content-type: application/json
 
 ###
+GET {{host}}/get-file-list HTTP/1.1
+content-type: application/json
+
+###
 POST {{host}}/upload HTTP/1.1
 content-type: multipart/form-data; boundary=----WebKitFormBoundarynsh5ZWs5fFZk50ou
 
