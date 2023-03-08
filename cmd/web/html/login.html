@@ -122,11 +122,23 @@
         submitForm(formName) {
           this.$refs[formName].validate((valid) => {
             if (valid) {
-              alert('submit!');
+              this.login()
             } else {
               console.log('error submit!!');
               return false;
             }
+          });
+        },
+        login() {
+          axios.post('http://localhost:8080/login', {
+            username: 'litingting',        // 参数 firstName
+            password: '123'    // 参数 lastName
+          })
+          .then(function (response) {
+            console.log(response);
+          })
+          .catch(function (error) {
+            console.log(error);
           });
         },
         updateFormStatus() {

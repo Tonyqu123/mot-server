@@ -27,3 +27,12 @@ Content-Type: video/mp4
 < ./cmd/web/html/sample-5s.mp4
 
 ------WebKitFormBoundarynsh5ZWs5fFZk50ou--
+
+###
+POST {{host}}/login HTTP/1.1
+content-type: application/json
+
+{
+    "username":"litingting",
+    "password":"123"
+}
