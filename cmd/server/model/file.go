@@ -7,10 +7,10 @@ import (
 type File struct {
 	Filename string `json:"filename"`
 	Fileid string `json:"fileid"`
-	FileOrigin int `json:"file-origin"`
-	FileTracked string `json:"file-tracked"`
+	FileOrigin int `json:"file_origin"`
+	FileTracked string `json:"file_tracked"`
 	Userid string `json:"userid"`
-	Uploadtime string `json:"upload-time"`
+	Uploadtime string `json:"upload_time"`
 }
 
 func (File) TableName() string {

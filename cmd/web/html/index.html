@@ -102,30 +102,36 @@
       <el-table-column
         prop="fileid"
         label="文件ID"
-        width="180">
+        width="80"
+        align="center">
       </el-table-column>
       <el-table-column
         prop="filename"
-        label="文件名">
+        label="文件名"
+        align="center">
       </el-table-column>
       <el-table-column
-        prop="upload-time"
-        label="上传时间">
-      </el-table-column>
-      <el-table-column
-        prop="userid"
-        label="上传用户">
+        prop="upload_time"
+        label="上传时间"
+        align="center">
       </el-table-column>
       <el-table-column
         prop="status"
-        label="状态">
+        label="状态"
+        width="120"
+        align="center">
         <template slot-scope="scope">
-          <template v-if="scope.row.status == 'transfering'">
+          <template v-if="scope.row.status === 0">
             <img src="../icon/loading.svg" alt="" style="width: 18px; vertical-align: middle; animation: rotating 1s linear infinite;">
+            <!-- {{scope.row.status}} -->
+            视频上传中
+          </template>
+          <template v-if="scope.row.status === 1">
+            <img src="../icon/tracking.svg" alt="" style="width: 18px; vertical-align: middle; animation: rotating 1s linear infinite;">
             <!-- {{scope.row.status}} -->
             视频跟踪中
           </template>
-          <template v-if="scope.row.status == 'success'">
+          <template v-if="scope.row.status === 2">
             <img src="../icon/success-filling.svg" alt="" style="width: 18px; vertical-align: middle;">
             <!-- {{scope.row.status}} -->
             视频跟踪成功
@@ -133,7 +139,8 @@
         </template>
       </el-table-column>
       <el-table-column
-        label="操作">
+        label="操作"
+        align="center">
         <template slot-scope="scope">
           <el-button
             @click.native.prevent="downloadRow(scope.$index, tableData)"
@@ -170,7 +177,8 @@
         }).then(res => {
           const { data } = res.data
           console.log(res.data.data);
-          this.tableData = res.data.data
+          this.tableData = data
+          console.log("status：", data[1].status)
         }).catch(function (error) { // 请求失败处理
           console.log(error);
         });

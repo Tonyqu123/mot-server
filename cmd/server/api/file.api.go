@@ -20,7 +20,7 @@ type FileParam struct {
 }
 
 func (a FileAPI) GetFileList(c *gin.Context) {
-	var files []model.File
+	var files []model.FileAndStatus
 	files, count, err := a.FileSrv.GetFiles()
 	fmt.Println("file api GetFiles count：", count)
 	if err != nil {
