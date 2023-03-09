@@ -100,13 +100,21 @@
       v-loading="loading"
       style="width: 60%;margin: 0 auto;padding-top: 20px;">
       <el-table-column
-        prop="id"
+        prop="fileid"
         label="文件ID"
         width="180">
       </el-table-column>
       <el-table-column
-        prop="fileName"
+        prop="filename"
         label="文件名">
+      </el-table-column>
+      <el-table-column
+        prop="upload-time"
+        label="上传时间">
+      </el-table-column>
+      <el-table-column
+        prop="userid"
+        label="上传用户">
       </el-table-column>
       <el-table-column
         prop="status"
@@ -155,21 +163,14 @@
         }
       },
       created: function () {
-        let temp = []
-        for (let index = 0; index < 30; index++) {
-          temp.push({
-            id: '2016-05-02',
-            fileName: '上海市普陀区金沙江路 1518 弄',
-            status: 'success' // transfering：跟踪中  / success：跟踪结束
-          })
-        }
-        this.tableData = temp
         axios({
           method:'get',
           url:'http://localhost:8080/get-file-list',
           withCredentials: false, // 默认的
-        }).then(function(res){
-          console.log(res.status);
+        }).then(res => {
+          const { data } = res.data
+          console.log(res.data.data);
+          this.tableData = res.data.data
         }).catch(function (error) { // 请求失败处理
           console.log(error);
         });
