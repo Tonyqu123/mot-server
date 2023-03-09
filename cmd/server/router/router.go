@@ -8,6 +8,7 @@ import (
 
 type Router struct {
 	LoginAPI    api.LoginAPI
+	FileAPI			api.FileAPI
 }
 
 func (a *Router) RegisterAPI(app *gin.Engine) {
@@ -16,6 +17,8 @@ func (a *Router) RegisterAPI(app *gin.Engine) {
 			"message": "pong",
 		})
 	})
+
+	app.GET("/get-file-list", a.FileAPI.GetFileList)
 
 
 	app.POST("/login", a.LoginAPI.Login)

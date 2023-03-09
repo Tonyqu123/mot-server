@@ -23,18 +23,18 @@ func main() {
 	// 	})
 	// })
 
-	type filelist struct {
-		Filename   string    `json:"filename"`
-		Fileid string `json:"fileid"`
-		FileOrigin  string    `json:"file-origin"`
-		FileTracked  string    `json:"file-tracked"`
-		Userid  string    `json:"userid"`
-		Uploadtime   string    `json:"upload-time"`
-	}
-	allUsers := []filelist{{Filename: "mot20.mp4", Fileid: "328731", FileOrigin: "http://hhh.com/origin/123", FileTracked: "http://hhh.com/tracked/123", Userid: "32442", Uploadtime: time.Unix(1678155044, 0).Format("2006-01-02 15:04:05")}, {Filename: "mot21.mp4", Fileid: "25343", FileOrigin: "http://hhh2.com/origin/123", FileTracked: "http://hhh2.com/tracked/123", Userid: "32442", Uploadtime: time.Unix(1678155044, 0).Format("2006-01-02 15:04:05")}}
-	r.GET("/get-file-list", func(c *gin.Context) {
-		c.JSON(http.StatusOK, allUsers)
-	})
+	// type filelist struct {
+	// 	Filename   string    `json:"filename"`
+	// 	Fileid string `json:"fileid"`
+	// 	FileOrigin  string    `json:"file-origin"`
+	// 	FileTracked  string    `json:"file-tracked"`
+	// 	Userid  string    `json:"userid"`
+	// 	Uploadtime   string    `json:"upload-time"`
+	// }
+	// allUsers := []filelist{{Filename: "mot20.mp4", Fileid: "328731", FileOrigin: "http://hhh.com/origin/123", FileTracked: "http://hhh.com/tracked/123", Userid: "32442", Uploadtime: time.Unix(1678155044, 0).Format("2006-01-02 15:04:05")}, {Filename: "mot21.mp4", Fileid: "25343", FileOrigin: "http://hhh2.com/origin/123", FileTracked: "http://hhh2.com/tracked/123", Userid: "32442", Uploadtime: time.Unix(1678155044, 0).Format("2006-01-02 15:04:05")}}
+	// r.GET("/get-file-list", func(c *gin.Context) {
+	// 	c.JSON(http.StatusOK, allUsers)
+	// })
 
 	r.POST("/upload", func(c *gin.Context) {
 		name := c.PostForm("name")
