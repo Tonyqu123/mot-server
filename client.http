@@ -36,3 +36,12 @@ content-type: application/json
     "username":"litingting",
     "password":"123"
 }
+
+###
+GET {{host}}/test-mq HTTP/1.1
+content-type: application/json
+
+
+###
+GET {{host}}/receive-mq-msg HTTP/1.1
+content-type: application/json
