@@ -9,6 +9,7 @@ import (
 type Router struct {
 	LoginAPI    api.LoginAPI
 	FileAPI			api.FileAPI
+	RabbitMQAPI	api.RabbitMQAPI
 }
 
 func (a *Router) RegisterAPI(app *gin.Engine) {
@@ -22,4 +23,8 @@ func (a *Router) RegisterAPI(app *gin.Engine) {
 
 
 	app.POST("/login", a.LoginAPI.Login)
+
+	app.GET("/send-mq", a.RabbitMQAPI.SendMessage)
+
+	app.GET("/receive-mq", a.RabbitMQAPI.ReceiveMessage)
 }

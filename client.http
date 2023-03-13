@@ -38,10 +38,10 @@ content-type: application/json
 }
 
 ###
-GET {{host}}/test-mq HTTP/1.1
+GET {{host}}/send-mq HTTP/1.1
 content-type: application/json
 
 
 ###
-GET {{host}}/receive-mq-msg HTTP/1.1
+GET {{host}}/receive-mq HTTP/1.1
 content-type: application/json
