@@ -10,3 +10,7 @@ db:
   redis:
     addr: "localhost:6379"
     session-size: 50
+  minio:
+    Endpoint: "127.0.0.1:9000"
+    AccessKeyID: ROOTNAME
+    SecretAccessKey: CHANGEME123

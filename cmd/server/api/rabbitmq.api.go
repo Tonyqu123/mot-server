@@ -2,10 +2,13 @@ package api
 
 import (
   "log"
+	"time"
+	"net/url"
 	"github.com/gin-gonic/gin"
   // "github.com/streadway/amqp"
 	amqp "github.com/rabbitmq/amqp091-go"
 	"net/http"
+	"github.com/minio/minio-go"
 )
 
 type RabbitMQAPI struct {}
@@ -112,3 +115,59 @@ func failOnError(err error, msg string) {
 		panic(err)
 	}
 }
+
+
+func (a RabbitMQAPI) GetMinio(c *gin.Context) {
+	endpoint := "127.0.0.1:9000"
+	accessKeyID := "ROOTNAME" // 启动 minio 时设置的 MINIO_ROOT_USER
+	secretAccessKey := "CHANGEME123" // 启动 minio 时设置的 MINIO_ROOT_PASSWORD
+	useSSL := false
+
+	// Initialize minio client object.
+	minioClient, err := minio.New(endpoint, accessKeyID, secretAccessKey, useSSL)
+	if err != nil {
+		log.Fatalln(err)
+	}
+
+	// Make a new bucket called mymusic.
+	bucketName := "mymusic"
+	location := "us-east-1"
+
+	err = minioClient.MakeBucket(bucketName, location)
+	if err != nil {
+		// Check to see if we already own this bucket (which happens if you run this twice)
+		exists, err := minioClient.BucketExists(bucketName)
+		if err == nil && exists {
+			log.Printf("We already own %s\n", bucketName)
+		} else {
+			log.Fatalln(err)
+		}
+	} else {
+		log.Printf("Successfully created %s\n", bucketName)
+	}
+
+	// Upload the zip file
+	objectName := "305210819105350468.jpeg"
+	filePath := "/Users/litingting/Desktop/305210819105350468.jpeg"
+	contentType := "application/jpeg"
+
+	// Upload the zip file with FPutObject
+	n, err := minioClient.FPutObject(bucketName, objectName, filePath, minio.PutObjectOptions{ContentType:contentType})
+	if err != nil {
+		log.Fatalln(err)
+	}
+
+
+	reqParams := make(url.Values)
+	expires := time.Second*24*60*60
+	presignedURL, err := minioClient.PresignedGetObject(bucketName, objectName, expires, reqParams)
+	if err != nil {
+		log.Fatalln(err)
+	}
+	
+	log.Printf("下载链接：%s", presignedURL)
+
+	log.Printf("Successfully uploaded %s of size %d\n", objectName, n)
+}
+
+

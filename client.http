@@ -45,3 +45,8 @@ content-type: application/json
 ###
 GET {{host}}/receive-mq HTTP/1.1
 content-type: application/json
+
+
+###
+GET {{host}}/get-minio HTTP/1.1
+content-type: application/json

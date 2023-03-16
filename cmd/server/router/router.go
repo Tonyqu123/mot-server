@@ -27,4 +27,6 @@ func (a *Router) RegisterAPI(app *gin.Engine) {
 	app.GET("/send-mq", a.RabbitMQAPI.SendMessage)
 
 	app.GET("/receive-mq", a.RabbitMQAPI.ReceiveMessage)
+
+	app.GET("/get-minio", a.RabbitMQAPI.GetMinio)
 }
