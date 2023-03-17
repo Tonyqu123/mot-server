@@ -10,6 +10,7 @@ type Router struct {
 	LoginAPI    api.LoginAPI
 	FileAPI			api.FileAPI
 	RabbitMQAPI	api.RabbitMQAPI
+	UploadAPI   api.UploadAPI
 }
 
 func (a *Router) RegisterAPI(app *gin.Engine) {
@@ -29,4 +30,6 @@ func (a *Router) RegisterAPI(app *gin.Engine) {
 	app.GET("/receive-mq", a.RabbitMQAPI.ReceiveMessage)
 
 	app.GET("/get-minio", a.RabbitMQAPI.GetMinio)
+
+	app.POST("/upload-video", a.UploadAPI.UploadVideo)
 }
