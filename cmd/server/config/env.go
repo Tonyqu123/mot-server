@@ -26,10 +26,17 @@ type Redis struct {
 	SessionSize int    `yaml:"session-size"`
 }
 
+type Minio struct {
+	Endpoint        string `yaml:"endpoint"`
+	AccessKeyId     string `yaml:"access-key-id"`
+	SecretAccessKey string `yaml:"secret-access-key"`
+}
+
 type Env struct {
 	Db struct {
 		Mysql `yaml:"mysql"`
 		Redis `yaml:"redis"`
+		Minio `yaml:"minio"`
 	} `yaml:"db"`
 }
 

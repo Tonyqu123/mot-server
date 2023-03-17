@@ -9,6 +9,7 @@ import (
 	amqp "github.com/rabbitmq/amqp091-go"
 	"net/http"
 	"github.com/minio/minio-go"
+	"github.com/tony/mot-server/cmd/server/config"
 )
 
 type RabbitMQAPI struct {}
@@ -116,24 +117,15 @@ func failOnError(err error, msg string) {
 	}
 }
 
+var minioClient = config.InitMinio()
+
 
 func (a RabbitMQAPI) GetMinio(c *gin.Context) {
-	endpoint := "127.0.0.1:9000"
-	accessKeyID := "ROOTNAME" // 启动 minio 时设置的 MINIO_ROOT_USER
-	secretAccessKey := "CHANGEME123" // 启动 minio 时设置的 MINIO_ROOT_PASSWORD
-	useSSL := false
-
-	// Initialize minio client object.
-	minioClient, err := minio.New(endpoint, accessKeyID, secretAccessKey, useSSL)
-	if err != nil {
-		log.Fatalln(err)
-	}
-
 	// Make a new bucket called mymusic.
 	bucketName := "mymusic"
 	location := "us-east-1"
 
-	err = minioClient.MakeBucket(bucketName, location)
+	err := minioClient.MakeBucket(bucketName, location)
 	if err != nil {
 		// Check to see if we already own this bucket (which happens if you run this twice)
 		exists, err := minioClient.BucketExists(bucketName)
@@ -147,9 +139,9 @@ func (a RabbitMQAPI) GetMinio(c *gin.Context) {
 	}
 
 	// Upload the zip file
-	objectName := "305210819105350468.jpeg"
-	filePath := "/Users/litingting/Desktop/305210819105350468.jpeg"
-	contentType := "application/jpeg"
+	objectName := "360210823142729440.png"
+	filePath := "/Users/litingting/Desktop/360210823142729440.png"
+	contentType := "application/png"
 
 	// Upload the zip file with FPutObject
 	n, err := minioClient.FPutObject(bucketName, objectName, filePath, minio.PutObjectOptions{ContentType:contentType})
@@ -164,7 +156,7 @@ func (a RabbitMQAPI) GetMinio(c *gin.Context) {
 	if err != nil {
 		log.Fatalln(err)
 	}
-	
+
 	log.Printf("下载链接：%s", presignedURL)
 
 	log.Printf("Successfully uploaded %s of size %d\n", objectName, n)
