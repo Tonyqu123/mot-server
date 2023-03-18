@@ -50,3 +50,17 @@ content-type: application/json
 ###
 GET {{host}}/get-minio HTTP/1.1
 content-type: application/json
+
+
+###
+POST {{host}}/upload-video HTTP/1.1
+content-type: multipart/form-data; boundary=----WebKitFormBoundarynsh5ZWs5fFZk50ou
+
+xx@sap.com
+------WebKitFormBoundarynsh5ZWs5fFZk50ou
+Content-Disposition: form-data; name="file"; filename="sample-5s.mp4"
+Content-Type: video/mp4
+
+< ./cmd/web/html/sample-5s.mp4
+
+------WebKitFormBoundarynsh5ZWs5fFZk50ou--
