@@ -1,16 +1,17 @@
 package model
 
 import (
+	// "fmt"
 	"gorm.io/gorm"
 )
 
 type File struct {
 	Filename string `json:"filename"`
 	Fileid string `json:"fileid"`
-	FileOrigin int `json:"file_origin"`
+	FileOrigin string `json:"file_origin"`
 	FileTracked string `json:"file_tracked"`
 	Userid string `json:"userid"`
-	Uploadtime string `json:"upload_time"`
+	Uploadtime string `json:"upload_time" gorm:"column:upload_time;"`
 }
 
 func (File) TableName() string {
@@ -32,4 +33,12 @@ func CountFiles() int64 {
 		return -1
 	}
 	return total
+}
+
+func AddFile(file File) (int, error) {
+	sql := db.Create(&file)
+	if err := sql.Error; err != nil {
+		return -1, err
+	}
+	return 0, nil
 }

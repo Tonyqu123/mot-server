@@ -15,3 +15,11 @@ func (a FileSrv) GetFiles() ([]model.FileAndStatus, int64, error) {
 	}
 	return files, total, nil
 }
+
+func AddFile(file model.File) (int, error) {
+	_, err := model.AddFile(file)
+	if err != nil {
+		return -1, err
+	}
+	return 0, nil
+}

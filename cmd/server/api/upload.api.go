@@ -2,13 +2,16 @@ package api
 
 import (
 	"fmt"
-	// "github.com/gin-contrib/sessions"
 	"time"
+	// "github.com/gin-contrib/sessions"
 	"github.com/gin-gonic/gin"
 	"github.com/minio/minio-go"
 	"net/http"
 	"net/url"
 	"mime/multipart"
+	"github.com/oklog/ulid/v2"
+	"github.com/tony/mot-server/cmd/server/service"
+	"github.com/tony/mot-server/cmd/server/model"
 )
 
 type UploadAPI struct {}
@@ -51,7 +54,31 @@ func UploadToMino(file *multipart.FileHeader) (*url.URL, error){
 		return nil, err
 	}
 
+	err = SaveToMysql(file.Filename, presignedURL.String())
+
+	if err != nil {
+		return presignedURL, err
+	}
+
 	fmt.Println("presignedURL：", presignedURL)
 
 	return presignedURL, nil
+}
+
+// 将上传成功的视频记录到数据库中
+func SaveToMysql(filename string, originRrl string) error {
+	var file model.File
+	file.Filename = filename
+	file.FileOrigin = originRrl
+	file.Fileid = ulid.Make().String()
+	file.FileTracked = ""
+	file.Userid = "1"
+	file.Uploadtime = time.Now().Format("2006-01-02 15:04:05")
+
+	_, err := service.AddFile(file)
+	if err != nil {
+		return err
+	}
+
+	return nil
 }
