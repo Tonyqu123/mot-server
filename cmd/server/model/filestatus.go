@@ -4,29 +4,33 @@ import (
 	"gorm.io/gorm"
 )
 
-type Filestatus struct {
-	Fileid  int `json:"fileid"`
-	Status  int `json:"status"`
+type FileStatus struct {
+	// foreign key, ref:https://gorm.io/docs/has_one.html
+	gorm.Model
+	FileID uint
+	Status int `json:"status"`
 }
 
 type FileAndStatus struct {
-	Filename string `json:"filename"`
-	Fileid int `json:"fileid" gorm:"autoIncrement"`
-	FileOrigin string `json:"file_origin" gorm:"column:file_origin"`
+	Filename    string `json:"filename"`
+	Fileid      int    `json:"file_id"`
+	FileOrigin  string `json:"file_origin" gorm:"column:file_origin"`
 	FileTracked string `json:"file_tracked" gorm:"column:file_tracked"`
-	Userid int `json:"userid"`
-	Uploadtime string `json:"upload_time" gorm:"column:upload_time"`
-	Status int `json:"status" gorm:"status"`
+	UserID      int    `json:"user_id"`
+	Uploadtime  string `json:"upload_time" gorm:"column:upload_time"`
+	Status      int    `json:"status" gorm:"status"`
 }
 
-func (Filestatus) TableName() string {
+func (FileStatus) TableName() string {
 	return "filestatus"
 }
 
-func GetFilesAndStatus() ([]FileAndStatus, error) {
-	var files []FileAndStatus
-	// err := db.Find(&files).Error
-	err := db.Model(&File{}).Select("files.filename, files.fileid, files.file_origin, files.file_tracked, files.userid, files.upload_time, filestatus.status").Joins("inner join filestatus on filestatus.fileid = files.fileid").Scan(&files).Error
+func GetFilesAndStatus() ([]File, error) {
+	var files []File
+	var err error
+
+	// ref:
+	err = db.Model(&File{}).Preload("FileStatus").Find(&files).Error
 	if err != nil && err != gorm.ErrRecordNotFound {
 		return nil, err
 	}

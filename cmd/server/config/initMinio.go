@@ -3,15 +3,17 @@ package config
 import (
 	"fmt"
 	"log"
+
 	"github.com/minio/minio-go"
 )
 
-func InitMinio() *minio.Client{
+func InitMinio() *minio.Client {
+	log.Println("initialing minIO")
 	minioInfo := GetEnv().Db.Minio
 	// 初使化 minio client对象。false是关闭https证书校验
-	minioClient, err := minio.New(minioInfo.Endpoint, minioInfo.AccessKeyId, minioInfo.SecretAccessKey, false )
+	minioClient, err := minio.New(minioInfo.Endpoint, minioInfo.AccessKeyId, minioInfo.SecretAccessKey, false)
 	if err != nil {
-		log.Fatalln(err)
+		log.Fatalf("FAIL TO intialize minIO, err: %s", err)
 	}
 	// 创建一个叫 originVideo 的存储桶。
 	CreateMinoBuket(minioClient, "origin-video")
@@ -34,6 +36,6 @@ func CreateMinoBuket(minioClient *minio.Client, bucketName string) {
 			return
 		}
 	}
-	
+
 	fmt.Printf("Successfully created %s\n", bucketName)
 }

@@ -2,21 +2,19 @@ package model
 
 import (
 	"gorm.io/gorm"
-	"github.com/tony/mot-server/cmd/server/config"
 )
 
 type User struct {
+	gorm.Model
 	Username string `json:"username"`
 	Password string `json:"password"`
-	Userid int `json:"userid"`
-	Role string `json:"role"`
+	Role     string `json:"role"`
+	Files    []File `json:"files"`
 }
 
 func (User) TableName() string {
 	return "user"
 }
-
-var db = config.InitMysql()
 
 func GetUsers() ([]User, error) {
 	var users []User
@@ -34,7 +32,6 @@ func GetUserByUsername(username string) (*User, error) {
 	}
 	return &user, nil
 }
-
 
 // func GetUsersByPagination(offset int, pageSize int, username string, address string, phone string, receiver string) ([]User, error) {
 // 	var users []User

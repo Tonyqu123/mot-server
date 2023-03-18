@@ -1,0 +1,16 @@
+
+{
+  "title": "list files example",
+  "data": [
+    {
+      "filename": "test.py",
+      "file_id": 0,
+      "file_origin": "http://127.0.0.1:9000/origin-video/test.py?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=ROOTNAME%2F20230318%2Fus-east-1%2Fs3%2Faws4_request&X-Amz-Date=20230318T104120Z&X-Amz-Expires=86400&X-Amz-SignedHeaders=host&X-Amz-Signature=fb3289cd402e6fe6d4cb6babbcf51e9c588480b608bd9b71b21678a54e21d488",
+      "file_tracked": "",
+      "user_id": 1,
+      "upload_time": "2023-03-18 18:41:20",
+      "status": 1
+    }
+  ],
+  "message": "Successfully authenticated user"
+}

@@ -2,11 +2,12 @@ package config
 
 import (
 	"fmt"
-	"gopkg.in/yaml.v2"
 	"os"
 	"os/exec"
 	"path/filepath"
 	"strings"
+
+	"gopkg.in/yaml.v2"
 )
 
 //const configYaml = "/env/local.yaml"
@@ -45,10 +46,16 @@ func (a Mysql) DSN() string {
 		a.User, a.Password, a.Host, a.Port, a.DBName, a.Parameters)
 }
 
+func envFirst(name, in string) string {
+	if os.Getenv(name) != "" {
+		return os.Getenv(name)
+	}
+	return in
+}
+
 func GetEnv() Env {
 	t := Env{}
-
-	data, err := os.ReadFile("/Users/litingting/GolandProjects/mot-server/cmd/server/env/local.yaml")
+	data, err := os.ReadFile(envFirst("local_env", "/Users/litingting/GolandProjects/mot-server/cmd/server/env/local.yaml"))
 
 	// 根据进程中的环境变量参数，判断使用哪份配置文件
 	currentENV := os.Getenv("env")

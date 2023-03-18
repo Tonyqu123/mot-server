@@ -7,13 +7,16 @@ import (
 
 type File struct {
 	gorm.Model
-	Filename string
-	FileOrigin string
-	FileTracked string
-	Userid string
-	Uploadtime string
-}
 
+	// foreign key, ref: https://gorm.io/docs/has_many.html
+	UserID      uint
+	Filename    string
+	FileOrigin  string
+	FileTracked string
+	UploadTime  string
+
+	FileStatus FileStatus
+}
 
 func GetFiles() ([]File, error) {
 	var files []File
@@ -33,9 +36,10 @@ func CountFiles() int64 {
 }
 
 func AddFile(file File) (int, error) {
-	db.AutoMigrate(&File{})
+	var err error
+
 	sql := db.Create(&file)
-	if err := sql.Error; err != nil {
+	if err = sql.Error; err != nil {
 		return -1, err
 	}
 	return 0, nil
