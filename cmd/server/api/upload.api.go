@@ -6,15 +6,43 @@ import (
 	"mime/multipart"
 	"net/http"
 	"net/url"
+	"sync"
 	"time"
 
 	// "github.com/gin-contrib/sessions"
 	"github.com/gin-gonic/gin"
 	"github.com/minio/minio-go"
-	"github.com/tony/mot-server/cmd/server/model"
-	// "github.com/oklog/ulid/v2"
-	"github.com/tony/mot-server/cmd/server/service"
+	"github.com/tony/mot-server/cmd/server/config"
 )
+
+var (
+	minioOnce   sync.Once
+	minioClient *minio.Client
+)
+
+func InitMinioOrDie() error {
+	minioOnce.Do(
+		func() {
+			minioClient = initMinioOrDie()
+
+			// 创建一个叫 originVideo 的存储桶。
+			CreateMinoBuket(minioClient, "origin-video")
+			CreateMinoBuket(minioClient, "tracked-video")
+		})
+	return nil
+}
+
+func initMinioOrDie() *minio.Client {
+	log.Println("initialing minIO")
+	minioInfo := config.GetMinioConfigOrDie()
+	// 初使化 minio client对象。false是关闭https证书校验
+	mCli, err := minio.New(minioInfo.Endpoint, minioInfo.AccessKeyId, minioInfo.SecretAccessKey, false)
+	if err != nil {
+		log.Fatalf("FAIL TO intialize minIO, err: %s", err)
+	}
+
+	return mCli
+}
 
 type UploadAPI struct{}
 
@@ -43,6 +71,10 @@ func (a UploadAPI) UploadVideo(c *gin.Context) {
 }
 
 func UploadToMino(file *multipart.FileHeader) (*url.URL, error) {
+	if minioClient == nil {
+		log.Fatalln("minio client can't be nil")
+	}
+
 	src, err := file.Open()
 	if err != nil {
 		log.Printf("fail to open file error: %s", err.Error())
@@ -72,20 +104,21 @@ func UploadToMino(file *multipart.FileHeader) (*url.URL, error) {
 	return presignedURL, nil
 }
 
-// 将上传成功的视频记录到数据库中
-func SaveToMysql(filename string, originRrl string) error {
-	var file model.File
-	file.Filename = filename
-	file.FileOrigin = originRrl
-	// file.FileID = ulid.Make().String()
-	file.FileTracked = ""
-	file.UserID = 1
-	file.UploadTime = time.Now().Format("2006-01-02 15:04:05")
-
-	_, err := service.AddFile(file)
+// minio 初始化的时候 CreateMinoBuket 创建 两个 minio 桶，一个是源视频一个是跟踪的结果
+func CreateMinoBuket(cli *minio.Client, bucketName string) {
+	location := "us-east-1"
+	err := cli.MakeBucket(bucketName, location)
 	if err != nil {
-		return err
+		// 检查存储桶是否已经存在。
+		exists, err := cli.BucketExists(bucketName)
+		fmt.Println(exists)
+		if err == nil && exists {
+			fmt.Printf("We already own %s\n", bucketName)
+		} else {
+			fmt.Println(err, exists)
+			return
+		}
 	}
 
-	return nil
+	fmt.Printf("Successfully created %s\n", bucketName)
 }

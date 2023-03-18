@@ -12,27 +12,6 @@ import (
 
 //const configYaml = "/env/local.yaml"
 
-type Mysql struct {
-	Host       string `yaml:"host"`
-	Port       int    `yaml:"port"`
-	User       string `yaml:"user"`
-	Password   string `yaml:"password"`
-	DBName     string `yaml:"db-name"`
-	Parameters string `yaml:"parameters"`
-}
-
-type Redis struct {
-	Addr        string `yaml:"addr"`
-	Password    string `yaml:"password"`
-	SessionSize int    `yaml:"session-size"`
-}
-
-type Minio struct {
-	Endpoint        string `yaml:"endpoint"`
-	AccessKeyId     string `yaml:"access-key-id"`
-	SecretAccessKey string `yaml:"secret-access-key"`
-}
-
 type Env struct {
 	Db struct {
 		Mysql `yaml:"mysql"`
@@ -41,19 +20,17 @@ type Env struct {
 	} `yaml:"db"`
 }
 
-func (a Mysql) DSN() string {
-	return fmt.Sprintf("%s:%s@tcp(%s:%d)/%s?%s",
-		a.User, a.Password, a.Host, a.Port, a.DBName, a.Parameters)
-}
-
-func envFirst(name, in string) string {
-	if os.Getenv(name) != "" {
-		return os.Getenv(name)
+// if the envName specified, first read the value, use it if not empty;
+// if empty then use the input Value.
+// This is mainly to avoid the hard code.
+func envFirst(envName, inputValue string) string {
+	if os.Getenv(envName) != "" {
+		return os.Getenv(envName)
 	}
-	return in
+	return inputValue
 }
 
-func GetEnv() Env {
+func GetEnvOrDie() Env {
 	t := Env{}
 	data, err := os.ReadFile(envFirst("local_env", "/Users/litingting/GolandProjects/mot-server/cmd/server/env/local.yaml"))
 

@@ -11,15 +11,15 @@ type FileStatus struct {
 	Status int `json:"status"`
 }
 
-type FileAndStatus struct {
-	Filename    string `json:"filename"`
-	Fileid      int    `json:"file_id"`
-	FileOrigin  string `json:"file_origin" gorm:"column:file_origin"`
-	FileTracked string `json:"file_tracked" gorm:"column:file_tracked"`
-	UserID      int    `json:"user_id"`
-	Uploadtime  string `json:"upload_time" gorm:"column:upload_time"`
-	Status      int    `json:"status" gorm:"status"`
-}
+//type FileAndStatus struct {
+//	Filename    string `json:"filename"`
+//	Fileid      int    `json:"file_id"`
+//	FileOrigin  string `json:"file_origin" gorm:"column:file_origin"`
+//	FileTracked string `json:"file_tracked" gorm:"column:file_tracked"`
+//	UserID      int    `json:"user_id"`
+//	Uploadtime  string `json:"upload_time" gorm:"column:upload_time"`
+//	Status      int    `json:"status" gorm:"status"`
+//}
 
 func (FileStatus) TableName() string {
 	return "filestatus"

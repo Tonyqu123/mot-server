@@ -1,15 +1,32 @@
 package model
 
 import (
+	"sync"
+
 	"github.com/tony/mot-server/cmd/server/config"
+	"gorm.io/driver/mysql"
 	"gorm.io/gorm"
 )
 
-var db = getDB()
-var getDB = func() *gorm.DB {
-	instance := config.InitMysql()
-	AutoMigrate(instance)
-	return instance
+var (
+	db     *gorm.DB
+	dbOnce sync.Once
+)
+
+func initMysqlOrDie() *gorm.DB {
+	db, err := gorm.Open(mysql.Open(config.GetDsnFromEnv()), &gorm.Config{})
+	if err != nil {
+		panic(err)
+	}
+	return db
+}
+
+var InitMySQLOrDie = func() error {
+	dbOnce.Do(func() {
+		db = initMysqlOrDie()
+		AutoMigrate(db)
+	})
+	return nil
 }
 
 func AutoMigrate(db *gorm.DB) {

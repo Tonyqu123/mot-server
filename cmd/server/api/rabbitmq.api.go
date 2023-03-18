@@ -12,7 +12,6 @@ import (
 
 	// "github.com/streadway/amqp"
 	amqp "github.com/rabbitmq/amqp091-go"
-	"github.com/tony/mot-server/cmd/server/config"
 )
 
 type RabbitMQAPI struct{}
@@ -114,14 +113,6 @@ func (a RabbitMQAPI) ReceiveMessage(c *gin.Context) {
 	<-forever
 }
 
-func failOnError(err error, msg string) {
-	if err != nil {
-		panic(err)
-	}
-}
-
-var minioClient = config.InitMinio()
-
 func (a RabbitMQAPI) GetMinio(c *gin.Context) {
 	// Make a new bucket called mymusic.
 	bucketName := "mymusic"
@@ -161,4 +152,10 @@ func (a RabbitMQAPI) GetMinio(c *gin.Context) {
 	log.Printf("下载链接：%s", presignedURL)
 
 	log.Printf("Successfully uploaded %s of size %d\n", objectName, n)
+}
+
+func failOnError(err error, msg string) {
+	if err != nil {
+		panic(err)
+	}
 }
