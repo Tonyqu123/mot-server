@@ -9,7 +9,7 @@ import (
 	"net/http"
 	"net/url"
 	"mime/multipart"
-	"github.com/oklog/ulid/v2"
+	// "github.com/oklog/ulid/v2"
 	"github.com/tony/mot-server/cmd/server/service"
 	"github.com/tony/mot-server/cmd/server/model"
 )
@@ -70,7 +70,7 @@ func SaveToMysql(filename string, originRrl string) error {
 	var file model.File
 	file.Filename = filename
 	file.FileOrigin = originRrl
-	file.Fileid = ulid.Make().String()
+	// file.Fileid = ulid.Make().String()
 	file.FileTracked = ""
 	file.Userid = "1"
 	file.Uploadtime = time.Now().Format("2006-01-02 15:04:05")

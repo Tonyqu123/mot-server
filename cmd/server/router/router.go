@@ -4,6 +4,7 @@ import (
 	"net/http"
 	"github.com/gin-gonic/gin"
 	"github.com/tony/mot-server/cmd/server/api"
+	"github.com/tony/mot-server/cmd/server/model"
 )
 
 type Router struct {
@@ -32,4 +33,6 @@ func (a *Router) RegisterAPI(app *gin.Engine) {
 	app.GET("/get-minio", a.RabbitMQAPI.GetMinio)
 
 	app.POST("/upload-video", a.UploadAPI.UploadVideo)
+
+	app.GET("/test-product", model.GetProduct)
 }
