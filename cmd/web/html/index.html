@@ -95,38 +95,38 @@
       v-loading="loading"
       style="width: 60%;margin: 0 auto;padding-top: 20px;">
       <el-table-column
-        prop="fileid"
+        prop="ID"
         label="文件ID"
         width="80"
         align="center">
       </el-table-column>
       <el-table-column
-        prop="filename"
+        prop="Filename"
         label="文件名"
         align="center">
       </el-table-column>
       <el-table-column
-        prop="upload_time"
+        prop="UploadTime"
         label="上传时间"
         align="center">
       </el-table-column>
       <el-table-column
-        prop="status"
+        prop="FileStatus"
         label="状态"
         width="140"
         align="center">
         <template slot-scope="scope">
-          <template v-if="scope.row.status === 0">
+          <template v-if="scope.row.FileStatus.status === 0">
             <img src="../icon/loading.svg" alt="" style="width: 18px; vertical-align: middle; animation: rotating 1s linear infinite;">
             <!-- {{scope.row.status}} -->
             视频上传中
           </template>
-          <template v-if="scope.row.status === 1">
+          <template v-if="scope.row.FileStatus.status === 1">
             <img src="../icon/tracking.svg" alt="" style="width: 18px; vertical-align: middle; animation: rotating 1s linear infinite;">
             <!-- {{scope.row.status}} -->
             视频跟踪中
           </template>
-          <template v-if="scope.row.status === 2">
+          <template v-if="scope.row.FileStatus.status === 2">
             <img src="../icon/success-filling.svg" alt="" style="width: 18px; vertical-align: middle;">
             <!-- {{scope.row.status}} -->
             视频跟踪成功
