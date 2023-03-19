@@ -138,10 +138,11 @@
         align="center">
         <template slot-scope="scope">
           <el-button
+            :disabled="scope.row.FileTracked === ''"
             @click.native.prevent="downloadRow(scope.$index, tableData)"
             type="text"
             size="small">
-            下载
+            查看
           </el-button>
           <el-button
             @click.native.prevent="deleteRow(scope.$index, tableData)"
@@ -186,7 +187,9 @@
           this.$message.success('删除成功！');
         },
         downloadRow(index, rows) {
-          rows.splice(index, 1);
+          // window.location.href = rows[index].FileOrigin
+          const href = rows[index].FileTracked
+          window.open(href, '_blank')
           this.$message.success('下载完成！');
         },
         handleSuccess(file, fileList) {
