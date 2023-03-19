@@ -7,13 +7,13 @@ import (
 
 type FileSrv struct{}
 
-func (a FileSrv) GetFiles() ([]model.FileAndStatus, int64, error) {
+func (a FileSrv) GetFiles() ([]model.File, int64, error) {
 	files, err := model.GetFilesAndStatus()
-	total := model.CountFiles()
 	if err != nil {
-		return nil, total, err
+		return nil, model.CountFiles(), err
 	}
-	return files, total, nil
+
+	return files, model.CountFiles(), nil
 }
 
 func AddFile(file model.File) (int, error) {

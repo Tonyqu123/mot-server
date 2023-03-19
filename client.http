@@ -4,7 +4,7 @@
 GET {{host}}/ping HTTP/1.1
 content-type: application/json
 
-###
+### get all files
 GET {{host}}/get-file-list HTTP/1.1
 content-type: application/json
 
@@ -57,15 +57,28 @@ GET {{host}}/test-product HTTP/1.1
 content-type: application/json
 
 
-###
+### upload vedio
 POST {{host}}/upload-video HTTP/1.1
 content-type: multipart/form-data; boundary=----WebKitFormBoundarynsh5ZWs5fFZk50ou
 
-xx@sap.com
 ------WebKitFormBoundarynsh5ZWs5fFZk50ou
 Content-Disposition: form-data; name="file"; filename="sample-5s.mp4"
 Content-Type: video/mp4
 
 < ./cmd/web/html/sample-5s.mp4
+
+------WebKitFormBoundarynsh5ZWs5fFZk50ou--
+
+
+### upload dummpy file
+# (test by tony)
+POST {{host}}/upload-video HTTP/1.1
+content-type: multipart/form-data; boundary=----WebKitFormBoundarynsh5ZWs5fFZk50ou
+
+------WebKitFormBoundarynsh5ZWs5fFZk50ou
+Content-Disposition: form-data; name="file"; filename="test.py"
+Content-Type: text/plain
+
+< ./sample.text
 
 ------WebKitFormBoundarynsh5ZWs5fFZk50ou--

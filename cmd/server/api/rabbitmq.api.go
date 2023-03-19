@@ -1,18 +1,20 @@
 package api
 
 import (
-  "log"
-	"time"
+	"log"
 	"net/url"
-	"github.com/gin-gonic/gin"
-  // "github.com/streadway/amqp"
-	amqp "github.com/rabbitmq/amqp091-go"
+	"time"
+
 	"net/http"
+
+	"github.com/gin-gonic/gin"
 	"github.com/minio/minio-go"
-	"github.com/tony/mot-server/cmd/server/config"
+
+	// "github.com/streadway/amqp"
+	amqp "github.com/rabbitmq/amqp091-go"
 )
 
-type RabbitMQAPI struct {}
+type RabbitMQAPI struct{}
 
 func (a RabbitMQAPI) SendMessage(c *gin.Context) {
 	// 连接到 RabbitMQ 服务器
@@ -49,7 +51,7 @@ func (a RabbitMQAPI) SendMessage(c *gin.Context) {
 		q.Name, // routing key
 		false,  // mandatory
 		false,  // immediate
-		amqp.Publishing {
+		amqp.Publishing{
 			ContentType: "text/plain",
 			Body:        []byte(body),
 		})
@@ -111,15 +113,6 @@ func (a RabbitMQAPI) ReceiveMessage(c *gin.Context) {
 	<-forever
 }
 
-func failOnError(err error, msg string) {
-	if err != nil {
-		panic(err)
-	}
-}
-
-var minioClient = config.InitMinio()
-
-
 func (a RabbitMQAPI) GetMinio(c *gin.Context) {
 	// Make a new bucket called mymusic.
 	bucketName := "mymusic"
@@ -144,14 +137,13 @@ func (a RabbitMQAPI) GetMinio(c *gin.Context) {
 	contentType := "application/png"
 
 	// Upload the zip file with FPutObject
-	n, err := minioClient.FPutObject(bucketName, objectName, filePath, minio.PutObjectOptions{ContentType:contentType})
+	n, err := minioClient.FPutObject(bucketName, objectName, filePath, minio.PutObjectOptions{ContentType: contentType})
 	if err != nil {
 		log.Fatalln(err)
 	}
 
-
 	reqParams := make(url.Values)
-	expires := time.Second*24*60*60
+	expires := time.Second * 24 * 60 * 60
 	presignedURL, err := minioClient.PresignedGetObject(bucketName, objectName, expires, reqParams)
 	if err != nil {
 		log.Fatalln(err)
@@ -162,4 +154,8 @@ func (a RabbitMQAPI) GetMinio(c *gin.Context) {
 	log.Printf("Successfully uploaded %s of size %d\n", objectName, n)
 }
 
-
+func failOnError(err error, msg string) {
+	if err != nil {
+		panic(err)
+	}
+}

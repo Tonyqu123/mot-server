@@ -7,18 +7,44 @@ import (
 	"net/http"
 	"path/filepath"
 	"time"
+
+	"github.com/tony/mot-server/cmd/server/api"
 	"github.com/tony/mot-server/cmd/server/middleware"
+	"github.com/tony/mot-server/cmd/server/model"
 	"github.com/tony/mot-server/cmd/server/router"
 
 	"github.com/gin-gonic/gin"
 	amqp "github.com/rabbitmq/amqp091-go"
 )
 
+var err error
+
+// init will run first then main
+// first we ensure all clients init with no errors
+func init() {
+	// init clients
+	if err = api.InitMinioOrDie(); err != nil {
+		log.Fatalln("init minio failed: ", err.Error())
+	}
+	if err = model.InitMySQLOrDie(); err != nil {
+		log.Fatalln("init db failed: ", err.Error())
+	}
+}
+
 func main() {
 	r := gin.Default()
 	r.Use(middleware.Cors()) //开启中间件 允许使用跨域请求
+	// example
+	setupExampleUpload(r)
+	// implementation
+	impl := router.Router{}
+	impl.RegisterAPI(r)
 
-	r.POST("/upload", func(c *gin.Context) {
+	log.Fatalln(r.Run()) // listen and serve on 0.0.0.0:8080 (for windows "localhost:8080")
+}
+
+func setupExampleUpload(engine *gin.Engine) {
+	engine.POST("/upload", func(c *gin.Context) {
 		name := c.PostForm("name")
 		email := c.PostForm("email")
 
@@ -73,9 +99,6 @@ func main() {
 		log.Printf(" [x] Sent %s\n", body)
 		c.String(http.StatusOK, "File %s uploaded successfully with fields name=%s and email=%s.", file.Filename, name, email)
 	})
-	r2 := router.Router{}
-	r2.RegisterAPI(r)
-	r.Run() // listen and serve on 0.0.0.0:8080 (for windows "localhost:8080")
 }
 
 func failOnError(err error, msg string) {
