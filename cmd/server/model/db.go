@@ -14,7 +14,9 @@ var (
 )
 
 func initMysqlOrDie() *gorm.DB {
-	db, err := gorm.Open(mysql.Open(config.GetDsnFromEnv()), &gorm.Config{})
+	db, err := gorm.Open(mysql.Open(config.GetDsnFromEnv()), &gorm.Config{
+		DisableForeignKeyConstraintWhenMigrating: true, //禁用外键约束
+	})
 	if err != nil {
 		panic(err)
 	}

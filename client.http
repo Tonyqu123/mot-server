@@ -82,3 +82,14 @@ Content-Type: text/plain
 < ./sample.text
 
 ------WebKitFormBoundarynsh5ZWs5fFZk50ou--
+
+
+// 测试增加 file 和 status
+###
+POST {{host}}/insert-file-status HTTP/1.1
+content-type: application/json
+
+{
+    "file_id":0,
+    "status":2
+}

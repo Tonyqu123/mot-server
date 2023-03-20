@@ -7,8 +7,8 @@ import (
 type FileStatus struct {
 	// foreign key, ref:https://gorm.io/docs/has_one.html
 	gorm.Model
-	FileID uint
-	Status int `json:"status"`
+	FileID uint `json:"file_id"`
+	Status int  `json:"status"`
 }
 
 //type FileAndStatus struct {
@@ -35,4 +35,15 @@ func GetFilesAndStatus() ([]File, error) {
 		return nil, err
 	}
 	return files, nil
+}
+
+func AddFileStatus(fileStatus FileStatus) error {
+	if err := db.Create(&fileStatus).Error; err != nil {
+		return err
+	}
+	return nil
+}
+
+func (FileStatus) UpdateStatusByFileId(fileId int, statusId int) {
+	db.Model(&FileStatus{}).Where("file_id = ?", fileId).Update("status", statusId)
 }
