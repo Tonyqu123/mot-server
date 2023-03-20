@@ -22,19 +22,18 @@ type RabbitMQAPI struct{}
 var (
 	rabbitMQOnce sync.Once
 	channel      *amqp.Channel
-	queue        *amqp.Queue
+	queue        amqp.Queue
 )
 
 func InitRabbitMQOrDie() error {
 	rabbitMQOnce.Do(
 		func() {
-			channel = initRabbitMQOrDie()
+			channel, queue = initRabbitMQOrDie()
 		})
 	return nil
 }
 
-func initRabbitMQOrDie() *amqp.Channel {
-	fmt.Println("initRabbitMQOrDie")
+func initRabbitMQOrDie() (*amqp.Channel, amqp.Queue) {
 	rabbitMQInfo := config.GetRabbitMQFromEnv()
 	// 连接到 RabbitMQ 服务器
 	conn, err := amqp.Dial("amqp://" + rabbitMQInfo.User + ":" + rabbitMQInfo.Password + "@" + rabbitMQInfo.Endpoint + "/")
@@ -51,13 +50,10 @@ func initRabbitMQOrDie() *amqp.Channel {
 
 	//defer ch.Close() // 函数 return 之后关闭 连接
 	fmt.Println("initRabbitMQOrDie success")
-	return ch
-}
 
-func (a RabbitMQAPI) SendMessage(c *gin.Context) {
-	fmt.Println("channel.QueueDeclare")
 	// 发送前，我们必须声明一个队列供我们发送，然后才能向队列发送消息
-	q, err := channel.QueueDeclare(
+	// 设置与生产者相同，首先打开一个连接和一个Channel，并声明我们要消费的队列。请注意，这与发送的队列相匹配
+	q, err := ch.QueueDeclare(
 		"hello", // name
 		false,   // durable
 		false,   // delete when unused
@@ -66,19 +62,21 @@ func (a RabbitMQAPI) SendMessage(c *gin.Context) {
 		nil,     // arguments
 	)
 	if err != nil {
-		fmt.Println("err：", err)
-		c.JSON(http.StatusBadRequest, gin.H{"message": "Failed to declare a queue", "data": err.Error()})
-		return
+		log.Fatalf("FAIL TO intialize rabbitMQ channel, err: %s", err)
 	}
 
+	return ch, q
+}
+
+func (a RabbitMQAPI) SendMessage(c *gin.Context) {
 	fmt.Println("Hello World!")
 	// 声明队列是幂等的——只有在它不存在的情况下才会创建它。消息内容是一个字节数组，因此你可以编写任何内容。
 	body := "Hello World!"
-	err = channel.Publish(
-		"",     // exchange
-		q.Name, // routing key
-		false,  // mandatory
-		false,  // immediate
+	err := channel.Publish(
+		"",         // exchange
+		queue.Name, // routing key
+		false,      // mandatory
+		false,      // immediate
 		amqp.Publishing{
 			ContentType: "text/plain",
 			Body:        []byte(body),
@@ -94,45 +92,16 @@ func (a RabbitMQAPI) SendMessage(c *gin.Context) {
 }
 
 func (a RabbitMQAPI) ReceiveMessage(c *gin.Context) {
-	////rabbitMQInfo := config.GetRabbitMQFromEnv()
-	//// 设置与生产者相同，首先打开一个连接和一个Channel，并声明我们要消费的队列。请注意，这与发送的队列相匹配
-	//conn, err := amqp.Dial("amqp://admin:123456@localhost:5672/")
-	//if err != nil {
-	//	c.JSON(http.StatusBadRequest, gin.H{"message": "Failed to connect to RabbitMQ", "data": err.Error()})
-	//	return
-	//}
-	//defer conn.Close()
-	//
-	//ch, err := conn.Channel()
-	//if err != nil {
-	//	c.JSON(http.StatusBadRequest, gin.H{"message": "Failed to open a channel", "data": err.Error()})
-	//	return
-	//}
-	//defer ch.Close()
-	//
-	q, err := channel.QueueDeclare(
-		"hello", // name
-		false,   // durable
-		false,   // delete when usused
-		false,   // exclusive
-		false,   // no-wait
-		nil,     // arguments
-	)
-	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"message": "Failed to declare a queue", "data": err.Error()})
-		return
-	}
-
 	// 取消息。确保使用消息之前队列已经存在。
 	// 在goroutine中读取来自channel （由amqp :: Consume返回）的消息（持续不断地读取）。
 	msgs, err := channel.Consume(
-		q.Name, // queue
-		"",     // consumer
-		true,   // auto-ack
-		false,  // exclusive
-		false,  // no-local
-		false,  // no-wait
-		nil,    // args
+		queue.Name, // queue
+		"",         // consumer
+		true,       // auto-ack
+		false,      // exclusive
+		false,      // no-local
+		false,      // no-wait
+		nil,        // args
 	)
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"message": "Failed to declare a queue", "data": err.Error()})
