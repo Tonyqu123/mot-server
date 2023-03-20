@@ -93,3 +93,13 @@ content-type: application/json
     "file_id":0,
     "status":2
 }
+
+// 测试增加 file 和 status
+###
+POST {{host}}/update-file-status HTTP/1.1
+content-type: application/json
+
+{
+    "file_id":0,
+    "status":1
+}

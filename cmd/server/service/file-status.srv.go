@@ -22,3 +22,10 @@ func AddFileStatus(filestatus model.FileStatus) error {
 	}
 	return nil
 }
+
+func UpdateStatusByFileId(filestatus model.FileStatus) error {
+	if err := model.UpdateStatusByFileId(filestatus); err != nil {
+		return err
+	}
+	return nil
+}

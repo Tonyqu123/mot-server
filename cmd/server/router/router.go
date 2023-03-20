@@ -37,4 +37,6 @@ func (a *Router) RegisterAPI(app *gin.Engine) {
 	app.GET("/test-product", model.GetProduct)
 
 	app.POST("/insert-file-status", a.FileStatusAPI.AddFileStatus)
+
+	app.POST("/update-file-status", a.FileStatusAPI.UpdateStatusByFileId)
 }

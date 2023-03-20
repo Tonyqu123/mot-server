@@ -31,3 +31,18 @@ func (a FileStatusAPI) AddFileStatus(c *gin.Context) {
 
 	c.JSON(http.StatusOK, gin.H{"message": "Successfully insert file and status", "data": fileStatus.FileID})
 }
+
+func (a FileStatusAPI) UpdateStatusByFileId(c *gin.Context) {
+	var fileStatus model.FileStatus
+	if err := c.Bind(&fileStatus); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"data": "参数有误"})
+		return
+	}
+
+	if err := service.UpdateStatusByFileId(fileStatus); err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"message": "Update status by fileId failed", "data": fileStatus.FileID})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{"message": "Successfully update status and fileId", "data": fileStatus.FileID})
+}

@@ -44,6 +44,17 @@ func AddFileStatus(fileStatus FileStatus) error {
 	return nil
 }
 
-func (FileStatus) UpdateStatusByFileId(fileId int, statusId int) {
-	db.Model(&FileStatus{}).Where("file_id = ?", fileId).Update("status", statusId)
+func UpdateStatusByFileId(filestatus FileStatus) error {
+	if err := db.Model(&FileStatus{}).Where("file_id = ?", filestatus.FileID).Update("status", filestatus.Status).Error; err != nil {
+		return err
+	}
+	return nil
+}
+
+func DeleteStatusByFileId(fileId int) error {
+	var filestatus FileStatus
+	if err := db.Where("file_id = ?", fileId).Delete(&filestatus).Error; err != nil {
+		return err
+	}
+	return nil
 }
