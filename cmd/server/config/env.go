@@ -17,6 +17,7 @@ type Env struct {
 		Mysql `yaml:"mysql"`
 		Redis `yaml:"redis"`
 		Minio `yaml:"minio"`
+		RabbitMQ `yaml:"rabbitMQ"`
 	} `yaml:"db"`
 }
 

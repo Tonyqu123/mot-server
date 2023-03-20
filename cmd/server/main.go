@@ -26,6 +26,9 @@ func init() {
 	if err = api.InitMinioOrDie(); err != nil {
 		log.Fatalln("init minio failed: ", err.Error())
 	}
+	if err = api.InitRabbitMQOrDie(); err != nil {
+		log.Fatalln("init rabbitMQ failed: ", err.Error())
+	}
 	if err = model.InitMySQLOrDie(); err != nil {
 		log.Fatalln("init db failed: ", err.Error())
 	}

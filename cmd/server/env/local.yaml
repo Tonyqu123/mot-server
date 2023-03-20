@@ -14,3 +14,7 @@ db:
     endpoint: "127.0.0.1:9000"
     access-key-id: ROOTNAME
     secret-access-key: CHANGEME123
+  rabbitMQ:
+    endpoint: "localhost:5672"
+    user: "admin"
+    password: "123456"
