@@ -2,8 +2,11 @@ package api
 
 import (
 	"fmt"
+	"github.com/tony/mot-server/cmd/server/model"
+	"github.com/tony/mot-server/cmd/server/service"
 	"log"
 	"net/url"
+	"strconv"
 	"sync"
 	"time"
 
@@ -113,12 +116,46 @@ func (a RabbitMQAPI) ReceiveMessage(c *gin.Context) {
 
 	go func() {
 		for d := range msgs {
+			fileId, err := strconv.Atoi(string(d.Body))
+			if err != nil {
+				panic("receive message filed")
+			}
+			// 延迟 2 分钟将跟踪任务的状态改成已完成
+			time.Sleep(time.Second * 10)
+			var fileStatus model.FileStatus
+			fileStatus.FileID = uint(fileId)
+			fileStatus.Status = 2 // 2 表示跟踪完成
+			err = service.UpdateStatusByFileId(fileStatus)
+			if err != nil {
+				panic("update status by fileId failed")
+			}
 			log.Printf("Received a message: %s", d.Body)
 		}
 	}()
 
 	log.Printf(" [*] Waiting for messages. To exit press CTRL+C")
 	<-forever
+
+	return
+}
+
+func (a RabbitMQAPI) SendBeginTrackMessage(fileId int) error {
+	body := strconv.Itoa(fileId)
+	err := channel.Publish(
+		"",         // exchange
+		queue.Name, // routing key
+		false,      // mandatory
+		false,      // immediate
+		amqp.Publishing{
+			ContentType: "text/plain",
+			Body:        []byte(body),
+		})
+
+	if err != nil {
+		return err
+	}
+
+	return nil
 }
 
 func (a RabbitMQAPI) GetMinio(c *gin.Context) {

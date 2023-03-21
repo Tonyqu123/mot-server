@@ -17,20 +17,19 @@ func (a FileSrv) GetFiles() ([]model.File, int64, error) {
 	return files, model.CountFiles(), nil
 }
 
-func AddFile(file model.File) error {
+func AddFile(file model.File) (int, error) {
 	fileId, err := model.AddFile(file)
 	var fileStatus model.FileStatus
 	fileStatus.FileID = uint(fileId)
-	fileStatus.Status = 0
-	fmt.Println("model.AddFileStatus：", fileStatus)
+	fileStatus.Status = 1
 	err = model.AddFileStatus(fileStatus)
 	if err != nil {
-		return err
+		return -1, err
 	}
 	if err != nil {
-		return err
+		return -1, err
 	}
-	return nil
+	return fileId, nil
 }
 
 func (a FileSrv) DeleteFileById(fileId int) error {

@@ -8,25 +8,6 @@ content-type: application/json
 GET {{host}}/get-file-list HTTP/1.1
 content-type: application/json
 
-###
-POST {{host}}/upload HTTP/1.1
-content-type: multipart/form-data; boundary=----WebKitFormBoundarynsh5ZWs5fFZk50ou
-
-------WebKitFormBoundarynsh5ZWs5fFZk50ou
-Content-Disposition: form-data; name="name"
-
-dd
-------WebKitFormBoundarynsh5ZWs5fFZk50ou
-Content-Disposition: form-data; name="email"
-
-xx@sap.com
-------WebKitFormBoundarynsh5ZWs5fFZk50ou
-Content-Disposition: form-data; name="file"; filename="upload.mp4"
-Content-Type: video/mp4
-
-< ./cmd/web/html/sample-5s.mp4
-
-------WebKitFormBoundarynsh5ZWs5fFZk50ou--
 
 ###
 POST {{host}}/login HTTP/1.1

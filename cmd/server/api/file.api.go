@@ -58,7 +58,11 @@ func SaveToMysql(filename string, originRrl string) error {
 	file.UserID = 1
 	file.UploadTime = time.Now().Format("2006-01-02 15:04:05")
 
-	err := service.AddFile(file)
+	fileId, err := service.AddFile(file)
+	if err != nil {
+		return err
+	}
+	err = RabbitMQAPI{}.SendBeginTrackMessage(fileId)
 	if err != nil {
 		return err
 	}
