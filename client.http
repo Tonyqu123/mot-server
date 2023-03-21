@@ -103,3 +103,10 @@ content-type: application/json
     "file_id":0,
     "status":1
 }
+
+
+// 测试删除 file
+@fileId = 6
+###
+DELETE {{host}}/file/{{fileId}} HTTP/1.1
+content-type: application/json

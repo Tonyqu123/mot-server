@@ -1,7 +1,6 @@
 package model
 
 import (
-	// "fmt"
 	"gorm.io/gorm"
 )
 
@@ -42,5 +41,14 @@ func AddFile(file File) (int, error) {
 	if err = sql.Error; err != nil {
 		return -1, err
 	}
-	return 0, nil
+	//fmt.Println("fileId：", file.ID) // 创建成功后会返回主键
+	return int(file.ID), nil
+}
+
+func DeleteFileById(fileId int) error {
+	// 通过主键删除
+	if err := db.Delete(&File{}, fileId).Error; err != nil {
+		return err
+	}
+	return nil
 }

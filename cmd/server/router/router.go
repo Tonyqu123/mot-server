@@ -24,6 +24,8 @@ func (a *Router) RegisterAPI(app *gin.Engine) {
 
 	app.GET("/get-file-list", a.FileAPI.GetFileList)
 
+	app.DELETE("/file/:fileId", a.FileAPI.DeleteFileById)
+
 	app.POST("/login", a.LoginAPI.Login)
 
 	app.GET("/send-mq", a.RabbitMQAPI.SendMessage)
