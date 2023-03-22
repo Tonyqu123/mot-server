@@ -20,6 +20,10 @@ var (
 	minioClient *minio.Client
 )
 
+type Form struct {
+	File *multipart.FileHeader `form:"file" binding:"required"`
+}
+
 func InitMinioOrDie() error {
 	minioOnce.Do(
 		func() {
@@ -52,8 +56,29 @@ type UploadParam struct {
 }
 
 func (a UploadAPI) UploadVideo(c *gin.Context) {
+	//var form Form
+	//err := c.ShouldBind(&form)
+	//if err != nil {
+	//	fmt.Println("err：", err)
+	//}
+	//
+	//file, err := ioutil.ReadFile("/Users/litingting/Desktop/video/MOT20/origin/MOT20-03.mp4")
+	//if err != nil {
+	//	return
+	//}
+	//
+	//downloadUrl, err := UploadToMino(f)
+	//if err != nil {
+	//	log.Printf("fail to upload to minio: %s", err.Error())
+	//	c.JSON(500, gin.H{"error": err.Error(), "message": "接收文件失败"})
+	//	return
+	//}
+
 	log.Println("UploadVideo")
 	f, err := c.FormFile("file")
+
+	fmt.Println("f.Filename：", f.Filename)
+
 	if err != nil {
 		log.Printf("fail to read file from form: %s", err.Error())
 		c.JSON(500, gin.H{"error": err.Error(), "message": "接收文件失败"})
