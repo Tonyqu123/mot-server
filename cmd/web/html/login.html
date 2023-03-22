@@ -57,7 +57,7 @@
         <el-form-item label="密码" prop="pass">
           <el-input type="password" v-model="ruleForm.pass" autocomplete="off"></el-input>
         </el-form-item>
-        <el-form-item v-if="!login" label="角色">
+        <el-form-item v-if="!loginStatus" label="角色">
           <el-select v-model="ruleForm.role" placeholder="角色">
             <el-option label="普通用户" value="user"></el-option>
             <el-option label="管理员" value="admin"></el-option>
@@ -90,7 +90,7 @@
           }
         };
         return {
-          login: true,
+          loginStatus: true,
           ruleForm: {
             pass: '',
             username: '',
@@ -107,7 +107,7 @@
         };
       },
       created: function () {
-        this.login = true
+        this.loginStatus = true
         axios({
           method:'get',
           url:'http://localhost:8080/get-file-list',
@@ -130,19 +130,39 @@
           });
         },
         login() {
-          axios.post('http://localhost:8080/login', {
-            username: 'litingting',        // 参数 firstName
-            password: '123'    // 参数 lastName
+          const that = this
+          const status = this.loginStatus === true ? 'login' : 'register'
+          axios.post('http://localhost:8080/' + status, {
+            username: this.ruleForm.username,        // 参数 firstName
+            password: this.ruleForm.pass,    // 参数 lastName
+            role: this.ruleForm.role
           })
           .then(function (response) {
-            console.log(response);
+            if(that.loginStatus === true) {
+              that.$message({
+                message: '登录成功',
+                type: 'success',
+                center: true
+              });
+              localStorage.setItem("role", that.ruleForm.role)
+              setTimeout(() => {
+                window.location.href = "file:///Users/litingting/GolandProjects/mot-server/cmd/web/html/index.html"
+              }, 1000);
+            } else {
+              that.$message({
+                message: '提交注册申请成功',
+                type: 'success',
+                center: true
+              });
+            }
           })
-          .catch(function (error) {
-            console.log(error);
+          .catch(res => {
+            console.log(res.response.data)
+            that.$message.error(res.response.data.error);
           });
         },
         updateFormStatus() {
-          this.login = false
+          this.loginStatus = false
         },
         handleCommand(command) {
           this.$message('click on item ' + command);

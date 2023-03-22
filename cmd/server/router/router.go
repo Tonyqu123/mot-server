@@ -27,6 +27,10 @@ func (a *Router) RegisterAPI(app *gin.Engine) {
 	app.DELETE("/file/:fileId", a.FileAPI.DeleteFileById)
 
 	app.POST("/login", a.LoginAPI.Login)
+	app.POST("/register", a.LoginAPI.Register)
+	app.GET("/get-user-list", a.LoginAPI.GetUserList)
+	app.POST("/permit-user/:userId", a.LoginAPI.PermitUser)
+	app.DELETE("/user/:userId", a.LoginAPI.DeleteUser)
 
 	app.GET("/send-mq", a.RabbitMQAPI.SendMessage)
 

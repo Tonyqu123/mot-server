@@ -7,37 +7,35 @@ import (
 
 type UserSrv struct{}
 
-func GetUsers() ([]model.User, int64, error) {
+func GetUsers() ([]model.User, error) {
 	users, err := model.GetUsers()
-	total := model.CountUser()
+	//total := model.CountUser()
 	if err != nil {
-		return nil, total, err
+		return nil, err
 	}
-	return users, total, nil
+	return users, nil
 }
 
-// func GetUserById(userId int) (model.User, error) {
-// 	return model.GetUserById(userId)
-// }
-
-// func UpdateUser(userId int, data interface{}) error {
-// 	marshalData, err := json.Marshal(data)
-// 	if err != nil {
-// 		return err
-// 	}
-// 	var user model.User
-// 	err = json.Unmarshal(marshalData, &user)
-// 	if err != nil {
-// 		return err
-// 	}
-// 	user.Uid = userId
-// 	return model.UpdateUser(userId, user)
-// }
-
-func AddUser(user model.User) (int, error) {
-	_, err := model.AddUser(user)
+func AddUser(user model.User) error {
+	err := model.AddUser(user)
 	if err != nil {
-		return -1, err
+		return err
 	}
-	return 0, nil
+	return nil
+}
+
+func PermitUser(id int) error {
+	err := model.UpdateUserStatusByUserid(id)
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+func DeleteUser(id int) error {
+	err := model.DeleteByUserid(id)
+	if err != nil {
+		return err
+	}
+	return nil
 }

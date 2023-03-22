@@ -67,7 +67,7 @@
             </span>
             <el-dropdown-menu slot="dropdown">
               <el-dropdown-item command="a">退出登录</el-dropdown-item>
-              <el-dropdown-item command="b">查看用户列表</el-dropdown-item>
+              <el-dropdown-item v-if="role==='admin'" command="b">查看用户列表</el-dropdown-item>
             </el-dropdown-menu>
           </el-dropdown>
         </div>
@@ -163,11 +163,13 @@
       data: function() {
         return {
           loading: false,
-          tableData: []
+          tableData: [],
+          role: ""
         }
       },
       created: function () {
         this.getFileList()
+        this.role = localStorage.getItem("role")
       },
       methods: {
         getFileList() {
@@ -185,7 +187,9 @@
           });
         },
         handleCommand(command) {
-          this.$message('click on item ' + command);
+          if(command === 'b') {
+            window.location.href = "file:///Users/litingting/GolandProjects/mot-server/cmd/web/html/user.html"
+          }
         },
         deleteRow(index, rows) {
           this.$confirm('此操作将永久删除该文件, 是否继续?', '提示', {

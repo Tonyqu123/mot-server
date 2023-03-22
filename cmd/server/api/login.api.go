@@ -2,6 +2,9 @@ package api
 
 import (
 	"fmt"
+	"github.com/tony/mot-server/cmd/server/model"
+	"strconv"
+
 	// "github.com/gin-contrib/sessions"
 	"github.com/gin-gonic/gin"
 	// "github.com/tony/mot-server/cmd/server/model"
@@ -47,64 +50,105 @@ func (a LoginAPI) Login(c *gin.Context) {
 	// 验证用户名和密码是否正确
 	verify, user := a.LoginSrv.VerifyByUsername(username, password)
 
-	if verify == false {
-		c.JSON(http.StatusNotFound, gin.H{"error": "Authentication failed"})
+	if user == nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "用户名或密码错误"})
 		return
 	}
 
-	// session := sessions.Default(c)
+	fmt.Println("useruseruser Status：", user)
 
-	// // Save the username in the session
-	// session.Set(userkey, admin.AdminId) // In real world usage you'd set this to the users ID
+	if verify == false {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "用户名或密码错误"})
+		return
+	}
 
-	// if err := session.Save(); err != nil {
-	// 	c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to save session", "5r": err.Error()})
-	// 	return
-	// }
+	// 如果状态未0，说明改用户刚提交注册申请，还在请求注册中
+	if user.Status != 1 {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "该用户注册申请正在审批中"})
+		return
+	}
 
 	c.JSON(http.StatusOK, gin.H{"message": "Successfully authenticated user", "data": user})
 }
 
-// func (a LoginAPI) Logout(c *gin.Context) {
-// 	session := sessions.Default(c)
-// 	user := session.Get(userkey)
-// 	if user == nil {
-// 		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid session token"})
-// 		return
-// 	}
-// 	session.Delete(userkey)
-// 	if err := session.Save(); err != nil {
-// 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to save session"})
-// 		return
-// 	}
-// 	c.JSON(http.StatusOK, gin.H{"message": "Successfully logged out"})
-// }
+func (a LoginAPI) Register(c *gin.Context) {
+	var user model.User
 
-// func (a LoginAPI) Me(c *gin.Context) {
-// 	session := sessions.Default(c)
-// 	user := session.Get(userkey)
-// 	var role model.Role
-// 	role, err := service.GetCurrentRole(c)
-// 	if err != nil {
-// 		c.JSON(http.StatusInternalServerError, gin.H{"err": err})
-// 	}
-// 	c.JSON(http.StatusOK, gin.H{"user": user, "role": role.RoleName})
-// }
+	err := c.BindJSON(&user)
+	if err != nil {
+		c.JSON(400, err.Error())
+		return
+	}
+	username := user.Username
+	password := user.Password
+	role := user.Role
+	user.Status = 0
+	if username == "admin" && password == "admin" {
+		user.Status = 1
+	}
 
-// func (a LoginAPI) Status(c *gin.Context) {
-// 	c.JSON(http.StatusOK, gin.H{"status": "You are logged in"})
-// }
+	// Validate form input
+	if strings.Trim(username, " ") == "" || strings.Trim(password, " ") == "" || strings.Trim(role, " ") == "" {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Parameters can't be empty"})
+		return
+	}
 
-// func IsSuperAdmin(c *gin.Context) bool {
-// 	var role model.Role
-// 	role, err := service.GetCurrentRole(c)
-// 	if err != nil {
-// 		c.JSON(http.StatusInternalServerError, gin.H{"err": err})
-// 	}
-// 	fmt.Println("is super admin:", role.RoleId)
-// 	if role.RoleId == -1 {
-// 		return true
-// 	} else {
-// 		return false
-// 	}
-// }
+	err = service.AddUser(user)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "create user error", "data": err})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{"message": "success", "data": user.Username})
+}
+
+func (a LoginAPI) GetUserList(c *gin.Context) {
+	var users []model.User
+	users, err := service.GetUsers()
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"message": "success"})
+		return
+	}
+	c.JSON(http.StatusOK, gin.H{"message": "success", "data": users})
+}
+
+func (a LoginAPI) GetRoleByUsername(c *gin.Context) {
+	var users []model.User
+	users, err := service.GetUsers()
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"message": "success"})
+		return
+	}
+	c.JSON(http.StatusOK, gin.H{"message": "success", "data": users})
+}
+
+func (a LoginAPI) PermitUser(c *gin.Context) {
+	userId := c.Param("userId")
+	id, err := strconv.Atoi(userId)
+	fmt.Println("id：", id)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "bad param"})
+		return
+	}
+	err = service.PermitUser(id)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"message": "success"})
+		return
+	}
+	c.JSON(http.StatusOK, gin.H{"message": "permit success"})
+}
+
+func (a LoginAPI) DeleteUser(c *gin.Context) {
+	userId := c.Param("userId")
+	id, err := strconv.Atoi(userId)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "bad param"})
+		return
+	}
+	err = service.DeleteUser(id)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"message": "success"})
+		return
+	}
+	c.JSON(http.StatusOK, gin.H{"message": "delete success"})
+}
