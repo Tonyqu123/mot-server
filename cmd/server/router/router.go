@@ -39,6 +39,7 @@ func (a *Router) RegisterAPI(app *gin.Engine) {
 	app.GET("/get-minio", a.RabbitMQAPI.GetMinio)
 
 	app.POST("/upload-video", a.UploadAPI.UploadVideo)
+	app.POST("/download-tracked", a.UploadAPI.DownloadTrackedUrl)
 
 	app.GET("/test-product", model.GetProduct)
 

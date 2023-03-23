@@ -6,6 +6,7 @@ import (
 	"mime/multipart"
 	"net/http"
 	"net/url"
+	"os"
 	"sync"
 	"time"
 
@@ -20,8 +21,26 @@ var (
 	minioClient *minio.Client
 )
 
+var VideoMap = map[string]string{
+	"MOT16-02.mp4": "/Users/litingting/GolandProjects/mot-server/video/MOT16/tracked/MOT16-02.mp4",
+	"MOT16-04.mp4": "/Users/litingting/GolandProjects/mot-server/video/MOT16/tracked/MOT16-04.mp4",
+	"MOT16-05.mp4": "/Users/litingting/GolandProjects/mot-server/video/MOT16/tracked/MOT16-05.mp4",
+	"MOT16-09.mp4": "/Users/litingting/GolandProjects/mot-server/video/MOT16/tracked/MOT16-09.mp4",
+	"MOT16-10.mp4": "/Users/litingting/GolandProjects/mot-server/video/MOT16/tracked/MOT16-10.mp4",
+	"MOT16-11.mp4": "/Users/litingting/GolandProjects/mot-server/video/MOT16/tracked/MOT16-11.mp4",
+	"MOT16-13.mp4": "/Users/litingting/GolandProjects/mot-server/video/MOT16/tracked/MOT16-13.mp4",
+	"MOT20-01.mp4": "/Users/litingting/GolandProjects/mot-server/video/MOT20/tracked/MOT20-01.mp4",
+	"MOT20-02.mp4": "/Users/litingting/GolandProjects/mot-server/video/MOT20/tracked/MOT20-02.mp4",
+	"MOT20-03.mp4": "/Users/litingting/GolandProjects/mot-server/video/MOT20/tracked/MOT20-03.mp4",
+	"MOT20-05.mp4": "/Users/litingting/GolandProjects/mot-server/video/MOT20/tracked/MOT20-05.mp4",
+}
+
 type Form struct {
 	File *multipart.FileHeader `form:"file" binding:"required"`
+}
+
+type Filename struct {
+	Filename string `json:"filename" binding:"required"`
 }
 
 func InitMinioOrDie() error {
@@ -74,7 +93,6 @@ func (a UploadAPI) UploadVideo(c *gin.Context) {
 	//	return
 	//}
 
-	log.Println("UploadVideo")
 	f, err := c.FormFile("file")
 
 	fmt.Println("f.Filename：", f.Filename)
@@ -92,7 +110,34 @@ func (a UploadAPI) UploadVideo(c *gin.Context) {
 		return
 	}
 
+	str := fmt.Sprintf(f.Filename)
+	fmt.Println("err = UploadToMinoByteType f.Filename：", str)
+	fmt.Println("VideoMap[f.Filename]：", VideoMap[str])
+	// 获取已经跟踪的本地文件，上传至 tracked-video
+	err = UploadToMinoByteType(str)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error(), "message": "接收文件失败"})
+		return
+	}
+
 	c.JSON(http.StatusOK, gin.H{"message": "Successfully upload video", "url": downloadUrl.String()})
+}
+
+func (a UploadAPI) DownloadTrackedUrl(c *gin.Context) {
+	var filename Filename
+	err := c.BindJSON(&filename)
+	fmt.Println("filename：", filename.Filename)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "不存在该文件！"})
+		return
+	}
+	// 根据 bucket 名字和 文件名下载文件
+	err = minioClient.FGetObject("tracked-video", filename.Filename, "/Users/litingting/Downloads/"+filename.Filename, minio.GetObjectOptions{})
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+	c.JSON(http.StatusOK, gin.H{"message": "Successfully download video"})
 }
 
 func UploadToMino(file *multipart.FileHeader) (*url.URL, error) {
@@ -114,6 +159,7 @@ func UploadToMino(file *multipart.FileHeader) (*url.URL, error) {
 	reqParams := make(url.Values)
 	expires := time.Second * 24 * 60 * 60
 	presignedURL, err := minioClient.PresignedGetObject("origin-video", file.Filename, expires, reqParams)
+
 	if err != nil {
 		log.Printf("fail to pre signed url error: %s", err.Error())
 		return nil, err
@@ -127,6 +173,32 @@ func UploadToMino(file *multipart.FileHeader) (*url.URL, error) {
 	fmt.Println("presignedURL：", presignedURL)
 
 	return presignedURL, nil
+}
+
+func UploadToMinoByteType(filename string) error {
+	fmt.Println("UploadToMinoByteType filename：", filename)
+	filePath := VideoMap[filename]
+	fmt.Println("UploadToMinoByteType filePath：", filePath)
+	file, err := os.Open(filePath)
+	if err != nil {
+		fmt.Println(err)
+		return err
+	}
+	defer file.Close()
+
+	fileStat, err := file.Stat()
+	if err != nil {
+		fmt.Println(err)
+		return err
+	}
+
+	uploadInfo, err := minioClient.PutObject("tracked-video", filename, file, fileStat.Size(), minio.PutObjectOptions{ContentType: "video/mp4"})
+	if err != nil {
+		fmt.Println(err)
+		return err
+	}
+	fmt.Println("Successfully uploaded bytes: ", uploadInfo)
+	return nil
 }
 
 // minio 初始化的时候 CreateMinoBuket 创建 两个 minio 桶，一个是源视频一个是跟踪的结果

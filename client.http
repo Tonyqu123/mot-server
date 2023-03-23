@@ -91,3 +91,15 @@ content-type: application/json
 ###
 DELETE {{host}}/file/{{fileId}} HTTP/1.1
 content-type: application/json
+
+
+// 项目初始化时增加管理员
+###
+POST {{host}}/register HTTP/1.1
+content-type: application/json
+
+{
+    "username":"admin",
+    "password":"admin",
+    "role":"admin"
+}

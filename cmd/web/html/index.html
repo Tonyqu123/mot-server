@@ -139,17 +139,23 @@
         label="操作"
         align="center">
         <template slot-scope="scope">
+          <!-- <el-button
+            @click.native.prevent="openOrigin(scope.$index, tableData)"
+            type="text"
+            size="small">
+            查看源文件
+          </el-button> -->
           <el-button
             :disabled="scope.row.FileStatus.status !== 2"
             @click.native.prevent="downloadRow(scope.$index, tableData)"
             type="text"
-            size="small">
-            查看
+            size="mini">
+            下载结果
           </el-button>
           <el-button
             @click.native.prevent="deleteRow(scope.$index, tableData)"
-            type="text"
-            size="small">
+            type="danger"
+            size="mini">
             移除
           </el-button>
         </template>
@@ -186,6 +192,13 @@
             console.log(error);
           });
         },
+        receiveMQ() {
+          axios('http://localhost:8080/receive-mq').then(() => {
+            console.log('begin listening rabbitMQ')
+          }).catch(function (error) { // 请求失败处理
+            console.log(error);
+          });
+        },
         handleCommand(command) {
           if(command === 'b') {
             window.location.href = "file:///Users/litingting/GolandProjects/mot-server/cmd/web/html/user.html"
@@ -215,11 +228,21 @@
             });          
           });
         },
-        downloadRow(index, rows) {
+        openOrigin(index, rows) {
           // window.location.href = rows[index].FileOrigin
           const href = rows[index].FileTracked
           window.open(href, '_blank')
-          this.$message.success('下载完成！');
+        },
+        downloadRow(index, rows) {
+          this.loading = true
+          axios.post('http://localhost:8080/download-tracked', {
+            filename: rows[index].Filename,        // 参数 firstName
+          }).then(() => {
+            this.loading = false
+            this.$message.success('下载完成！');
+          }).catch(function (error) { // 请求失败处理
+            console.log(error);
+          });
         },
         handleSuccess(file, fileList) {
           this.loading = false
