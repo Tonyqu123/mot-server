@@ -121,7 +121,7 @@ func (a RabbitMQAPI) ReceiveMessage(c *gin.Context) {
 				panic("receive message filed")
 			}
 			// 延迟 2 分钟将跟踪任务的状态改成已完成
-			time.Sleep(time.Second * 10)
+			time.Sleep(time.Second * 30)
 			var fileStatus model.FileStatus
 			fileStatus.FileID = uint(fileId)
 			fileStatus.Status = 2 // 2 表示跟踪完成

@@ -63,7 +63,7 @@
         <div class="user">
           <el-dropdown @command="handleCommand">
             <span class="el-dropdown-link">
-              username<i class="el-icon-arrow-down el-icon--right"></i>
+              {{username}}<i class="el-icon-arrow-down el-icon--right"></i>
             </span>
             <el-dropdown-menu slot="dropdown">
               <el-dropdown-item command="a">退出登录</el-dropdown-item>
@@ -74,7 +74,7 @@
       </div>
     </div>
     <div class="head" style="padding: 0 20%;width: 60%;color: aliceblue;padding-top: 20px;">
-      <div style="margin-bottom: 10px;">多目标跟踪平台</div>
+      <div style="margin-bottom: 10px;">基于云服务的多目标跟踪平台</div>
       上传 MP4 格式文件，标注多目标跟踪结果。
     </div>
     <!-- :auto-upload="false" -->
@@ -170,12 +170,14 @@
         return {
           loading: false,
           tableData: [],
-          role: ""
+          role: "",
+          username: ""
         }
       },
       created: function () {
         this.getFileList()
         this.role = localStorage.getItem("role")
+        this.username = localStorage.getItem("username")
       },
       methods: {
         getFileList() {
